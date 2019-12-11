@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -90,53 +92,9 @@ public class MainActivity extends AppCompatActivity {
                 +"\nTYPE : "+Build.TYPE
                 +"\nUNKNOWN : "+Build.UNKNOWN
                 +"\nUSER : "+Build.USER;
-            //txtCPU.setText(pkgAppsList.toString());
-//        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-//        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-//        activityManager.getMemoryInfo(memoryInfo);
-//
-//        String TAG = "AAAA";
-//
-//        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
-//
-//        Map<Integer, String> pidMap = new TreeMap<Integer, String>();
-//        for (ActivityManager.RunningAppProcessInfo runningAppProcessInfo : runningAppProcesses)
-//        {
-//            pidMap.put(runningAppProcessInfo.pid, runningAppProcessInfo.processName);
-//        }
-//
-//        Collection<Integer> keys = pidMap.keySet();
-//
-//        for(int key : keys)
-//        {
-//
-//
-//            int pids[] = new int[1];
-//            pids[0] = key;
-//            android.os.Debug.MemoryInfo[] memoryInfoArray = activityManager.getProcessMemoryInfo(pids);
-//            for(android.os.Debug.MemoryInfo pidMemoryInfo: memoryInfoArray)
-//            {
-//                Log.i(TAG, String.format("** MEMINFO in pid %d [%s] **\n",pids[0],pidMap.get(pids[0])));
-//                Log.i(TAG, " pidMemoryInfo.getTotalPrivateDirty(): " + pidMemoryInfo.getTotalPrivateDirty() + "\n");
-//                Log.i(TAG, " pidMemoryInfo.getTotalPss(): " + pidMemoryInfo.getTotalPss() + "\n");
-//                Log.i(TAG, " pidMemoryInfo.getTotalSharedDirty(): " + pidMemoryInfo.getTotalSharedDirty() + "\n");
-//            }
-//        }
-//
 
 
-        //getPackages();
 
-//        Debug.MemoryInfo memoryInfo = new Debug.MemoryInfo();
-//        Debug.getMemoryInfo(memoryInfo);
-//
-//        String memMessage = String.format("App Memory: Pss=%.2f MB\nPrivate=%.2f MB\nShared=%.2f MB",
-//                memoryInfo.getTotalPss() / 1024.0,
-//                memoryInfo.getTotalPrivateDirty() / 1024.0,
-//                memoryInfo.getTotalSharedDirty() / 1024.0);
-//
-//        Toast.makeText(this,memMessage,Toast.LENGTH_LONG).show();
-//        Log.i("AAAA", memMessage);
 
         final Handler handler = new Handler();
         Timer timer = new Timer(false);
@@ -151,23 +109,45 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         };
-        timer.schedule(timerTask, 1000); // 1000 = 1 second.
-
-//        new CountDownTimer(30000, 2000) {
-//
-//            public void onTick(long millisUntilFinished) {
-//                adapterApp.notifyDataSetChanged();
-//                process.setVisibility(View.INVISIBLE);
-//                //Toast.makeText(getApplicationContext() , "123" , Toast.LENGTH_SHORT).show();
-//            }
-//
-//            public void onFinish() {
-//                //mTextField.setText("done!");
-//            }
-//
-//        }.start();
+        timer.schedule(timerTask, 1000);
+        test();
+    }
 
 
+
+    private void test() {
+        String TAG = "AAAA";
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(memoryInfo);
+
+        Log.i(TAG, " memoryInfo.availMem " + memoryInfo.availMem + "\n" );
+        Log.i(TAG, " memoryInfo.lowMemory " + memoryInfo.lowMemory + "\n" );
+        Log.i(TAG, " memoryInfo.threshold " + memoryInfo.threshold + "\n" );
+
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
+
+        Map<Integer, String> pidMap = new TreeMap<Integer, String>();
+        for (ActivityManager.RunningAppProcessInfo runningAppProcessInfo : runningAppProcesses)
+        {
+            pidMap.put(runningAppProcessInfo.pid, runningAppProcessInfo.processName);
+        }
+
+        Collection<Integer> keys = pidMap.keySet();
+
+        for(int key : keys)
+        {
+            int pids[] = new int[1];
+            pids[0] = key;
+            android.os.Debug.MemoryInfo[] memoryInfoArray = activityManager.getProcessMemoryInfo(pids);
+            for(android.os.Debug.MemoryInfo pidMemoryInfo: memoryInfoArray)
+            {
+                Log.i(TAG, String.format("** MEMINFO in pid %d [%s] **\n",pids[0],pidMap.get(pids[0])));
+                Log.i(TAG, " pidMemoryInfo.getTotalPrivateDirty(): " + pidMemoryInfo.getTotalPrivateDirty() + "\n");
+                Log.i(TAG, " pidMemoryInfo.getTotalPss(): " + pidMemoryInfo.getTotalPss() + "\n");
+                Log.i(TAG, " pidMemoryInfo.getTotalSharedDirty(): " + pidMemoryInfo.getTotalSharedDirty() + "\n");
+            }
+        }
     }
 
     private ArrayList<PInfo> getPackages() {
@@ -194,6 +174,11 @@ public class MainActivity extends AppCompatActivity {
             newInfo.versionCode = p.versionCode;
             newInfo.path = p.applicationInfo.sourceDir;
             newInfo.icon = p.applicationInfo.loadIcon(getPackageManager());
+
+            String minSdk = "Unkown";
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                minSdk = p.applicationInfo.minSdkVersion+"";
+            }
 
             File file = new File(newInfo.path);
             long sizeinByte = file.length();
@@ -320,7 +305,27 @@ public class MainActivity extends AppCompatActivity {
                 percent -= 31.0f;
             }
 
-            arrApp.add(new ContactApp(newInfo.appname , newInfo.pname  , newInfo.versionName , newInfo.versionCode , newInfo.path , newInfo.icon , "RAMMb" , "Apk cài đặt : "+sizeinMb+" Mb" , targetSdkVersion+"" , percent+""));
+            final PackageManager pm = getPackageManager();
+            StringBuffer permissions = new StringBuffer();
+
+            try {
+                PackageInfo packageInfo = pm.getPackageInfo(newInfo.pname, PackageManager.GET_PERMISSIONS);
+
+                String[] requestedPermissions = packageInfo.requestedPermissions;
+                if ( requestedPermissions != null ) {
+                    for (String requestedPermission : requestedPermissions) {
+                        permissions.append(requestedPermission).append("\n");
+                    }
+                    //Log.d(TAG, "Permissions: " + permissions);
+                }
+            }
+            catch ( PackageManager.NameNotFoundException e ) {
+                e.printStackTrace();
+            }
+
+
+
+            arrApp.add(new ContactApp(newInfo.appname , newInfo.pname  , newInfo.versionName , newInfo.versionCode , newInfo.path , newInfo.icon , "RAMMb" , "Apk cài đặt : "+sizeinMb+" Mb" , targetSdkVersion+"" , permissions.toString(),minSdk, percent+""));
             adapterApp.notifyDataSetChanged();
             process.setVisibility(View.INVISIBLE);
             res.add(newInfo);

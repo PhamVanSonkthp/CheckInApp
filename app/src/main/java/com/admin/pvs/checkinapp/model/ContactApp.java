@@ -12,6 +12,8 @@ public class ContactApp {
     private String ram;
     private String sizeApp;
     private String targetSdkVersion;
+    private String permisions;
+    private String minSDK;
     private String support;
 
     public String getAppname() {
@@ -86,6 +88,22 @@ public class ContactApp {
         this.targetSdkVersion = targetSdkVersion;
     }
 
+    public String getPermisions() {
+        return permisions;
+    }
+
+    public void setPermisions(String permisions) {
+        this.permisions = permisions;
+    }
+
+    public String getMinSDK() {
+        return minSDK;
+    }
+
+    public void setMinSDK(String minSDK) {
+        this.minSDK = minSDK;
+    }
+
     public String getSupport() {
         return support;
     }
@@ -94,7 +112,7 @@ public class ContactApp {
         this.support = support;
     }
 
-    public ContactApp(String appname, String pname, String versionName, int versionCode, String path, Drawable icon, String ram, String sizeApp, String targetSdkVersion, String support) {
+    public ContactApp(String appname, String pname, String versionName, int versionCode, String path, Drawable icon, String ram, String sizeApp, String targetSdkVersion, String permisions, String minSDK, String support) {
         this.appname = appname;
         this.pname = pname;
         this.versionName = versionName;
@@ -104,6 +122,8 @@ public class ContactApp {
         this.ram = ram;
         this.sizeApp = sizeApp;
         this.targetSdkVersion = targetSdkVersion;
+        this.permisions = permisions;
+        this.minSDK = minSDK;
         this.support = support;
     }
 }

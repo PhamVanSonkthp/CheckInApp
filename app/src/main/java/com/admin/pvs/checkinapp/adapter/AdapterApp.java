@@ -44,6 +44,8 @@ public class AdapterApp extends ArrayAdapter<ContactApp> {
         TextView txtSupport = row.findViewById(R.id.item_txt_support);
         TextView txtSizeApp = row.findViewById(R.id.item_txt_size);
         TextView txtVerName = row.findViewById(R.id.item_txt_ver_name);
+        TextView txtPermission = row.findViewById(R.id.item_txt_permission);
+        TextView txtMinSDK = row.findViewById(R.id.item_txt_minSDK);
 
         ContactApp contactApp =this.objects.get(position);
 
@@ -51,6 +53,35 @@ public class AdapterApp extends ArrayAdapter<ContactApp> {
         txtAppName.setText(contactApp.getAppname());
         txtSizeApp.setText(contactApp.getSizeApp());
         txtVerName.setText("Tên phiên bản : " +contactApp.getVersionName());
+        txtMinSDK.setText("Ver Android >= : " + contactApp.getMinSDK());
+
+        String permission = "Ứng dụng yêu cầu : ";
+        if(contactApp.getPermisions().contains("android.permission.CAMERA")){
+            permission += "Camera , ";
+        }
+        if(contactApp.getPermisions().contains("android.permission.RECORD_AUDIO")){
+            permission += "Micro , ";
+        }
+        if(contactApp.getPermisions().contains("android.permission.READ_EXTERNAL_STORAGE")){
+            permission += "Truy cập bộ nhớ , ";
+        }
+        if(contactApp.getPermisions().contains("android.permission.ACCESS_WIFI_STATE")){
+            permission += "WIFI , ";
+        }
+        if(contactApp.getPermisions().contains("android.permission.INTERNET")){
+            permission += "Mạng di động , ";
+        }
+        if(contactApp.getPermisions().contains("android.permission.BLUETOOTH")){
+            permission += "BLUETOOTH , ";
+        }
+        if(contactApp.getPermisions().contains("android.permission.BIND_NFC_SERVICE")){
+            permission += "NFC , ";
+        }
+        if(contactApp.getPermisions().contains("android.permission.ACCESS_FINE_LOCATION")){
+            permission += "GPS , ";
+        }
+
+        txtPermission.setText(permission);
 
         if(Float.parseFloat( contactApp.getSupport()) <= 30){
             txtSupport.setTextColor(Color.RED);
