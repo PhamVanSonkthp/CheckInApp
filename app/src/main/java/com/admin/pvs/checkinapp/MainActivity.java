@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -53,7 +54,7 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView txtVerOs , txtDevices , txtModel , txtProduct , txtHardware , txtRAM , txtROM , txtCores;
+    TextView txtVerOs , txtDevices , txtModel , txtProduct , txtHardware , txtRAM , txtROM , txtCores , txtCamera , txtGPS , txtNFC , txtWIFI;
     ProgressBar process;
     ListView lvApp;
     ArrayList<ContactApp> arrApp;
@@ -69,32 +70,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        String  details =  "VERSION.RELEASE : "+Build.VERSION.RELEASE
-                +"\nVERSION.INCREMENTAL : "+Build.VERSION.INCREMENTAL
-                +"\nVERSION.SDK.NUMBER : "+Build.VERSION.SDK_INT
-                +"\nBOARD : "+Build.BOARD
-                +"\nBOOTLOADER : "+Build.BOOTLOADER
-                +"\nBRAND : "+Build.BRAND
-                +"\nCPU_ABI : "+Build.CPU_ABI
-                +"\nCPU_ABI2 : "+Build.CPU_ABI2
-                +"\nDISPLAY : "+Build.DISPLAY
-                +"\nFINGERPRINT : "+Build.FINGERPRINT
-                +"\nHARDWARE : "+Build.HARDWARE
-                +"\nHOST : "+Build.HOST
-                +"\nID : "+Build.ID
-                +"\nMANUFACTURER : "+Build.MANUFACTURER
-                +"\nMODEL : "+Build.MODEL
-                +"\nPRODUCT : "+Build.PRODUCT
-                +"\nSERIAL : "+Build.SERIAL
-                +"\nTAGS : "+Build.TAGS
-                +"\nTIME : "+Build.TIME
-                +"\nTYPE : "+Build.TYPE
-                +"\nUNKNOWN : "+Build.UNKNOWN
-                +"\nUSER : "+Build.USER;
-
-
-
 
         final Handler handler = new Handler();
         Timer timer = new Timer(false);
@@ -116,37 +91,37 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void test() {
-        String TAG = "AAAA";
-        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-        activityManager.getMemoryInfo(memoryInfo);
+        PackageManager pm = getPackageManager();
 
-        Log.i(TAG, " memoryInfo.availMem " + memoryInfo.availMem + "\n" );
-        Log.i(TAG, " memoryInfo.lowMemory " + memoryInfo.lowMemory + "\n" );
-        Log.i(TAG, " memoryInfo.threshold " + memoryInfo.threshold + "\n" );
-
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
-
-        Map<Integer, String> pidMap = new TreeMap<Integer, String>();
-        for (ActivityManager.RunningAppProcessInfo runningAppProcessInfo : runningAppProcesses)
-        {
-            pidMap.put(runningAppProcessInfo.pid, runningAppProcessInfo.processName);
+        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            txtCamera.setText("Có");
+            txtCamera.setTextColor(Color.GREEN);
+        }else {
+            txtCamera.setText("Không");
+            txtCamera.setTextColor(Color.RED);
         }
 
-        Collection<Integer> keys = pidMap.keySet();
+        if (pm.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)) {
+            txtGPS.setTextColor(Color.GREEN);
+            txtGPS.setText("Có");
+        }else {
+            txtGPS.setText("Không");
+            txtGPS.setTextColor(Color.RED);
+        }
 
-        for(int key : keys)
-        {
-            int pids[] = new int[1];
-            pids[0] = key;
-            android.os.Debug.MemoryInfo[] memoryInfoArray = activityManager.getProcessMemoryInfo(pids);
-            for(android.os.Debug.MemoryInfo pidMemoryInfo: memoryInfoArray)
-            {
-                Log.i(TAG, String.format("** MEMINFO in pid %d [%s] **\n",pids[0],pidMap.get(pids[0])));
-                Log.i(TAG, " pidMemoryInfo.getTotalPrivateDirty(): " + pidMemoryInfo.getTotalPrivateDirty() + "\n");
-                Log.i(TAG, " pidMemoryInfo.getTotalPss(): " + pidMemoryInfo.getTotalPss() + "\n");
-                Log.i(TAG, " pidMemoryInfo.getTotalSharedDirty(): " + pidMemoryInfo.getTotalSharedDirty() + "\n");
-            }
+        if (pm.hasSystemFeature(PackageManager.FEATURE_NFC)) {
+            txtNFC.setTextColor(Color.GREEN);
+            txtNFC.setText("Có");
+        }else {
+            txtNFC.setText("Không");
+            txtNFC.setTextColor(Color.RED);
+        }
+        if (pm.hasSystemFeature(PackageManager.FEATURE_WIFI)) {
+            txtWIFI.setTextColor(Color.GREEN);
+            txtWIFI.setText("Có");
+        }else {
+            txtWIFI.setText("Không");
+            txtWIFI.setTextColor(Color.RED);
         }
     }
 
@@ -168,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 continue ;
             }
             PInfo newInfo = new PInfo();
+
             newInfo.appname = p.applicationInfo.loadLabel(getPackageManager()).toString();
             newInfo.pname = p.packageName;
             newInfo.versionName = p.versionName;
@@ -354,6 +330,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void anhXa() {
+        txtWIFI = findViewById(R.id.txtWIFI);
+        txtNFC = findViewById(R.id.txtNFC);
+        txtGPS = findViewById(R.id.txtGPS);
+        txtCamera = findViewById(R.id.txtCamera);
         txtVerOs = findViewById(R.id.txtVerOs);
         txtDevices = findViewById(R.id.txtDevices);
         txtModel = findViewById(R.id.txtModel);
@@ -406,17 +386,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static String getTotalInternalMemorySize() {
-        File path = Environment.getDataDirectory();
-        StatFs stat = new StatFs(path.getPath());
-        long blockSize = 0;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            blockSize = stat.getBlockSizeLong();
-        }
-        long totalBlocks = 0;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            totalBlocks = stat.getBlockCountLong();
-        }
-        return formatSize(totalBlocks * blockSize);
+//        File path = Environment.getDataDirectory();
+//        StatFs stat = new StatFs(path.getPath());
+//        long blockSize = 0;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+//            blockSize = stat.getBlockSizeLong();
+//        }
+//        long totalBlocks = 0;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+//            totalBlocks = stat.getBlockCountLong();
+//        }
+
+        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+        long bytesAvailable = (long)stat.getBlockSize() *(long)stat.getBlockCount();
+        long megAvailable = bytesAvailable / 1048576;
+
+        //return formatSize(megAvailable);
+        return megAvailable / 1024 +" GB";
     }
 
     public static String getAvailableInternalMemorySize() {
